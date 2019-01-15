@@ -2,6 +2,7 @@ use core::fmt;
 use lazy_static::lazy_static;
 use spin::Mutex;
 use volatile::Volatile;
+use x86_64::instructions::interrupts;
 
 #[macro_export]
 macro_rules! print {
@@ -17,7 +18,9 @@ macro_rules! println {
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
-    WRITER.lock().write_fmt(args).unwrap();
+    interrupts::without_interrupts(|| {
+        WRITER.lock().write_fmt(args).unwrap();
+    });
 }
 
 lazy_static! {
@@ -91,10 +94,7 @@ impl Writer {
                 let row = BUFFER_HEIGHT - 1;
                 let col = self.column_pos;
                 let color = self.color;
-                self.buffer.chars[row][col].write(ScreenChar {
-                    c: byte,
-                    color,
-                });
+                self.buffer.chars[row][col].write(ScreenChar { c: byte, color });
                 self.column_pos += 1;
             }
         }
@@ -191,7 +191,7 @@ mod test {
         }
     }
 
-	#[test]
+    #[test]
     fn write_formatted() {
         use core::fmt::Write;
 

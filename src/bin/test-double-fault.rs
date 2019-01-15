@@ -3,9 +3,9 @@
 #![cfg_attr(not(test), no_main)]
 #![cfg_attr(test, allow(dead_code, unused_macros, unused_imports))]
 
-use packsos::{exit_qemu, serial_println};
 use core::panic::PanicInfo;
 use lazy_static::lazy_static;
+use packsos::{exit_qemu, serial_println};
 
 #[cfg(not(test))]
 #[no_mangle]
@@ -73,5 +73,5 @@ extern "x86-interrupt" fn double_fault_handler(
     unsafe {
         exit_qemu();
     }
-    loop {}
+    packsos::halt();
 }

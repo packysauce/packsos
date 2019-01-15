@@ -10,8 +10,10 @@ use packsos::{exit_qemu, serial_println};
 pub extern "C" fn _start() -> ! {
     serial_println!("ok");
 
-    unsafe { exit_qemu(); }
-    loop {}
+    unsafe {
+        exit_qemu();
+    }
+    packsos::halt();
 }
 
 #[cfg(not(test))]
@@ -19,6 +21,8 @@ pub extern "C" fn _start() -> ! {
 fn panic(info: &PanicInfo) -> ! {
     serial_println!("failed");
     serial_println!("{}", info);
-    unsafe { exit_qemu(); }
-    loop {}
+    unsafe {
+        exit_qemu();
+    }
+    packsos::halt();
 }

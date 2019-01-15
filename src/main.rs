@@ -2,14 +2,16 @@
 #![cfg_attr(not(test), no_main)]
 #![cfg_attr(test, allow(unused_imports))]
 
-use packsos::{exit_qemu, println, serial_println};
+use acpi::search_for_rsdp_bios;
 use core::panic::PanicInfo;
+use packsos::{println, serial_print, serial_println};
+use x86_64::instructions::interrupts;
 
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    packsos::halt();
 }
 
 #[cfg(not(test))]
@@ -17,16 +19,11 @@ fn panic(info: &PanicInfo) -> ! {
 pub extern "C" fn _start() -> ! {
     packsos::gdt::init();
     packsos::interrupts::init_idt();
+    unsafe { packsos::interrupts::PIC.lock().initialize() };
+    interrupts::enable();
+
     serial_println!("Smash circuits online");
-
-    fn stack_overflow() {
-        stack_overflow();
-    }
-
-    stack_overflow();
-
     println!("Lemme smash");
     println!("You want some blue?");
-    panic!("no blue");
-    loop {}
+    packsos::halt();
 }

@@ -9,7 +9,7 @@ default-target = "x86_64-packsos.json"
 run-command = [
   "qemu-system-x86_64", "-drive", "format=raw,file={}",
   "-curses",
-  # "-serial", "mon:stdio", "-nographic",
+  #"-serial", "mon:stdio", "-nographic",
   "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04"
 ]
 
@@ -20,8 +20,11 @@ panic = "abort"
 panic = "abort"
 
 [dependencies]
+acpi = "0.1.0"
 array-init = "0.0.3"
 bootloader = "0.3.4"
+pc-keyboard = "0.3.1"
+pic8259_simple = "0.1.1"
 spin = "0.4.9"
 uart_16550 = "0.1.0"
 volatile = "0.2.3"

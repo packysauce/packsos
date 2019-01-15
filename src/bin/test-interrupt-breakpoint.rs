@@ -7,7 +7,7 @@ use core::panic::PanicInfo;
 use core::sync::atomic::{AtomicUsize, Ordering};
 use lazy_static::lazy_static;
 use packsos::{exit_qemu, serial_println};
-use x86_64::structures::idt::{InterruptDescriptorTable, ExceptionStackFrame};
+use x86_64::structures::idt::{ExceptionStackFrame, InterruptDescriptorTable};
 
 static HANDLER_CALLED: AtomicUsize = AtomicUsize::new(0);
 
@@ -22,7 +22,7 @@ pub extern "C" fn _start() -> ! {
         0 => {
             serial_println!("failed");
             serial_println!("Breakpoint handler not called");
-        },
+        }
         other => {
             serial_println!("failed");
             serial_println!("Breakpoint handler called {} times", other);
@@ -45,9 +45,7 @@ pub fn init_test_idt() {
     IDT.load();
 }
 
-extern "x86-interrupt" fn bp_handler(
-    stack: &mut ExceptionStackFrame)
-{
+extern "x86-interrupt" fn bp_handler(stack: &mut ExceptionStackFrame) {
     HANDLER_CALLED.fetch_add(1, Ordering::SeqCst);
 }
 
@@ -61,5 +59,5 @@ fn panic(info: &PanicInfo) -> ! {
         exit_qemu();
     }
 
-    loop {}
+    packsos::halt();
 }
