@@ -6,6 +6,7 @@ use x86_64::registers::control::{Cr0, Cr3};
 use x86_64::registers::model_specific::Efer;
 use x86_64::registers::rflags;
 use x86_64::structures::idt::{ExceptionStackFrame, InterruptDescriptorTable};
+pub use x86_64::instructions::interrupts::enable;
 
 pub const PIC_1_OFFSET: u8 = 32;
 pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
@@ -15,6 +16,7 @@ pub const KEYBOARD: u8 = PIC_1_OFFSET + 1;
 
 pub static PIC: spin::Mutex<ChainedPics> =
     spin::Mutex::new(unsafe { ChainedPics::new(PIC_1_OFFSET, PIC_2_OFFSET) });
+pub static TIMER_TICKS: spin::Mutex<u64> = spin::Mutex::new(0);
 
 lazy_static! {
     pub static ref IDT: InterruptDescriptorTable = {
@@ -54,7 +56,9 @@ extern "x86-interrupt" fn double_fault_handler(stack: &mut ExceptionStackFrame, 
 }
 
 extern "x86-interrupt" fn timer_handler(_stack: &mut ExceptionStackFrame) {
-    print!(".");
+    let mut ticks = TIMER_TICKS.lock();
+    print!("Timer ticks: {}\r", *ticks);
+    *ticks += 1;
     unsafe { PIC.lock().notify_end_of_interrupt(TIMER) }
 }
 
