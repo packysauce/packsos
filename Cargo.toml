@@ -8,8 +8,8 @@ edition = "2018"
 default-target = "x86_64-packsos.json"
 run-command = [
   "qemu-system-x86_64", "-drive", "format=raw,file={}",
-  "-curses",
-  #"-serial", "mon:stdio", "-nographic",
+  #"-curses",
+  "-serial", "mon:stdio", "-nographic",
   "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04"
 ]
 
